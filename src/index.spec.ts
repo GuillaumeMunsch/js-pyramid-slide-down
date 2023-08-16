@@ -1,32 +1,96 @@
 // @ts-ignore see https://github.com/jest-community/jest-extended#setup
 import * as matchers from "jest-extended";
-import fc from "fast-check";
+import { Pyramid, computePyramidSlideDownNumber } from ".";
 
 expect.extend(matchers);
 
-test("A simple test (Jest)", () => {
-  expect(1 + 1).toEqual(2);
-});
-
-test("Additional matchers (jest-extended)", () => {
-  expect([1, 0]).toIncludeSameMembers([0, 1]);
-});
-
-test("Property-based testing (fast-check)", () => {
-  type Boundaries = {
-    min: number;
-    max: number;
+test("Basic pyramid with 3", () => {
+  // GIVEN
+  const pyramid: Pyramid = {
+    type: "BottomPyramidLevel",
+    values: [3],
   };
 
-  const minmax =
-    ({ min, max }: Boundaries) =>
-    (n: number): number =>
-      Math.min(max, Math.max(min, n));
+  // WHEN
+  const sum = computePyramidSlideDownNumber(pyramid);
 
-  fc.assert(
-    fc.property(fc.integer(), (n): boolean => {
-      const result = minmax({ min: 1, max: 10 })(n);
-      return 1 <= result && result <= 10;
-    })
-  );
+  // THEN
+  expect(sum).toEqual(3);
 });
+
+test("Basic pyramid with 5", () => {
+  // GIVEN
+  const pyramid: Pyramid = {
+    type: "BottomPyramidLevel",
+    values: [5],
+  };
+
+  // WHEN
+  const sum = computePyramidSlideDownNumber(pyramid);
+
+  // THEN
+  expect(sum).toEqual(5);
+});
+
+test("2 levels", () => {
+  // GIVEN
+  const pyramid: Pyramid = {
+    type: "PyramidLevel",
+    values: [5],
+    floorBelow: {
+      type: "BottomPyramidLevel",
+      values: [1, 3],
+    },
+  };
+
+  // WHEN
+  const sum = computePyramidSlideDownNumber(pyramid);
+
+  // THEN
+  expect(sum).toEqual(8);
+});
+
+test("3 levels", () => {
+  // GIVEN
+  const pyramid: Pyramid = {
+    type: "PyramidLevel",
+    values: [5],
+    floorBelow: {
+      type: "PyramidLevel",
+      values: [1, 3],
+      floorBelow: {
+        type: "BottomPyramidLevel",
+        values: [18, 3, 5],
+      },
+    },
+  };
+
+  // WHEN
+  const sum = computePyramidSlideDownNumber(pyramid);
+
+  // THEN
+  expect(sum).toEqual(24);
+});
+
+test("3 levels", () => {
+  // GIVEN
+  const pyramid: Pyramid = {
+    type: "PyramidLevel",
+    values: [5],
+    floorBelow: {
+      type: "PyramidLevel",
+      values: [1, 3],
+      floorBelow: {
+        type: "BottomPyramidLevel",
+        values: [2, 3, 5],
+      },
+    },
+  };
+
+  // WHEN
+  const sum = computePyramidSlideDownNumber(pyramid);
+
+  // THEN
+  expect(sum).toEqual(13);
+});
+
